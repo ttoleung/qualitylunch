@@ -37,32 +37,36 @@ def hipchat(message):
     requests.post(url=room, data=json.dumps({'message': message, 'color': 'gray'}), headers=headers)
 
 
-def pick(lunch_type):
+def algo_select(restaurants):
     """
     Pick a place for lunch, having an artificial intellgence to
     1) Not to repeat the same selection in the last 5 days
     2) Favor restaurants that have been more previously
 
     """
-    my_sql = "select SH.name, SH.C, SH.id, SH.avgprice FROM (select R.name, if(H.C is NULL,0,H.C) " \
-          "as C, R.id, R.type, R.avgprice, R.active from restaurants R  left join " \
-          "(select name, count(*) as C from history as H, restaurants as R WHERE H.visited = R.id group by R.name) " \
-          "as H ON R.name = H.name) as SH WHERE SH.id not in (select visited from history " \
-          "where date >= DATE_ADD(CURDATE(), INTERVAL - 5 DAY)) AND SH.type = '"\
-          + lunch_type + "' AND SH.active = '1' order by SH.C desc;"
-    result = run_sql(my_sql)
-    pool = 0
-    for r in result:
-        pool = pool + 1 + int(r[1])
-        print(r[0] + " " + str(r[1]) + " " + str(r[2]))
-
+    pool = restaurants.rowcount
     seed = random.randint(1, pool)
-    print("Pool is " + str(pool) + ", seed is " + str(seed) + "\n\r")
-
-    for r in result:
-        seed = seed - r[1] - 1
+    print("Pool is %s, seed is %s\n\r" % (str(pool), str(seed)))
+    for n in list(restaurants.fetchall()):
+        seed = seed - n[1] - 1
         if seed <= 0:
-            return '"' + str(r[2]) + "-" + r[0] + '($' + str(r[3]) + ')"'
+            msg = '"%s-%s($%s)"' % (str(n[2]), str(n[0]), str([3]))
+            return msg
+
+
+def pick(lunch_type):
+    """
+    Query database for a list of restaurants and pass to the algo for processing
+
+    """
+    my_sql = "select SH.name, SH.C, SH.id, SH.avgprice FROM (select R.name, if(H.C is NULL,0,H.C) " \
+             "as C, R.id, R.type, R.avgprice, R.active from restaurants R  left join " \
+             "(select name, count(*) as C from history as H, restaurants as R WHERE H.visited = R.id " \
+             "group by R.name) as H ON R.name = H.name) as SH WHERE SH.id not in (select visited from history " \
+             "where date >= DATE_ADD(CURDATE(), INTERVAL - 5 DAY)) AND SH.type = '"\
+             + lunch_type + "' AND SH.active = '1' order by SH.C desc;"
+    restaurants = run_sql(my_sql)
+    return algo_select(restaurants)
 
 
 def pick_on_day():
