@@ -6,13 +6,13 @@ import configparser
 import requests
 
 config = configparser.ConfigParser()
-config.read("qualitylunch.conf")
+config.read("/home/eclipse/qualitylunch/qualitylunch.conf")
 host = config['database']['host']
 user = config['database']['username']
 password = config['database']['password']
 database = config['database']['database']
-room_id = int(config['hipchat-test']['room'])
-api_token = config['hipchat-test']['api_token']
+room_id = int(config['hipchat-prod']['room'])
+api_token = config['hipchat-prod']['api_token']
 
 
 def run_sql(query):
@@ -50,7 +50,7 @@ def algo_select(restaurants):
     for n in list(restaurants.fetchall()):
         seed = seed - n[1] - 1
         if seed <= 0:
-            msg = '"%s-%s($%s)"' % (str(n[2]), str(n[0]), str([3]))
+            msg = '"%s-%s($%s)"' % (str(n[2]), str(n[0]), str(n[3]))
             return msg
 
 
@@ -89,11 +89,11 @@ def main():
     """
     chinese = pick("C")
     japanese = pick("J")
-    taiwan = pick("T")
-    new_taste = pick("N")
+    asian = pick("A")
+    western = pick("W")
     default = pick_on_day()
     msg = '/poll create for 2 hour "Lunch where?" %s %s %s %s %s "none of the above"' % \
-          (chinese, japanese, taiwan, new_taste, default)
+          (chinese, japanese, asian, western , default)
     hipchat(msg)
 
 
