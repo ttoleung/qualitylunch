@@ -39,7 +39,7 @@ def hipchat(message):
 
 def algo_select(restaurants):
     """
-    Pick a place for lunch, having an artificial intellgence to
+    Pick a place for lunch, having an artificial intelligence to
     1) Not to repeat the same selection in the last 5 days
     2) Favor restaurants that have been more previously
 
