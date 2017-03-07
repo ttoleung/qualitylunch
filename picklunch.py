@@ -69,19 +69,6 @@ def pick(lunch_type):
     return algo_select(restaurants)
 
 
-def pick_on_day():
-    """
-    Pick a place for lunch based on days of the week
-
-    """
-    my_date = date.today()
-    day = my_date.weekday()
-    sql = "select name, avgprice from restaurants where type = '" + str(day) + "';"
-    result = run_sql(sql)
-    for r in result:
-        return '"' + r[0] + '($' + str(r[1]) + ')"'
-
-
 def main():
     """
     Build a message for HipChat poll
@@ -91,9 +78,8 @@ def main():
     japanese = pick("J")
     asian = pick("A")
     western = pick("W")
-    default = pick_on_day()
-    msg = '/poll create for 2 hour "Lunch where?" %s %s %s %s %s "none of the above"' % \
-          (chinese, japanese, asian, western , default)
+    msg = '/poll create for 2 hour "Lunch where?" %s %s %s %s "none of the above"' % \
+          (chinese, japanese, asian, western)
     hipchat(msg)
 
 
